@@ -1,0 +1,38 @@
+create database tpi;
+use tpi;
+CREATE TABLE empleado (
+legajo int auto_increment primary key,
+nombre varchar(30) not null,
+apellido varchar(30) not null,
+fecha_nac date not null,
+fecha_ingreso date not null,
+area varchar(30) not null,
+sueldo_bruto decimal(8,2) not null);
+insert into empleado (nombre,apellido,fecha_nac,fecha_ingreso,area,sueldo_bruto) values("carlos","medina","2000-03-25",'2020-03-11',"administ",4000);
+select * from empleado
+select * from recibo
+CREATE TABLE recibo (
+nro_recibo int auto_increment primary key,
+anio int not null,
+mes int not null,
+monto_antig decimal(8,2) not null,
+jubilacion decimal(8,2) not null,
+obra_social decimal(8,2) not null,
+fondo_complej decimal (8,2) not null,
+legajo int not null,
+FOREIGN KEY (legajo) REFERENCES empleado (legajo));
+select r.nro_recibo,anio,mes,r.legajo,(sueldo_bruto+monto_antig-(obra_social+fondo_complej+jubilacion)) as sueldo 
+from recibo r join empleado e on  e.legajo=r.legajo where r.legajo=1;
+insert into recibo(anio,mes,monto_antig,jubilacion,obra_social,fondo_complej,legajo) 
+values(2022,1,5000,100,300,1000,5);
+select nro_recibo,anio,mes,r.legajo,nombre,apellido,area,(sueldo_bruto+monto_antig-(obra_social+fondo_complej+jubilacion)) as sueldo
+from recibo r join empleado e on e.legajo=r.legajo where mes=10 && anio=2021 group by area order by sueldo
+
+delete from recibo where nro_recibo=8
+delete from empleado where legajo=4
+create view sueldoxArea
+as
+select anio , mes ,area , sum((e.sueldo_bruto + monto_antig)-(jubilacion + obra_social+fondo_complej)) as neto
+from recibo r join empleado e on e.legajo=r.legajo
+group by area, anio,mes
+order by sum((e.sueldo_bruto + monto_antig)-(jubilacion + obra_social+fondo_complej))
